@@ -25,7 +25,7 @@ Bugs affecting the core Filecoin protocol (Lotus, builtin-actors, FVM, F3, and o
 
 The program is administered by Filecoin Foundation and offers bounties for qualifying vulnerabilities. See the [Coordinated Disclosure Policy](https://fil.org/security/coordinated-disclosure-policy) for details.
 
-### For vulnerabilities in third-party services
+### For vulnerabilities in third-party services & dependencies
 
 - **Aurora storage backend** (`https://aurorainfra.ai/`). Out of Scope.
 - **Auth0** — [Auth0 Responsible Disclosure](https://auth0.com/responsible-disclosure-policy)
