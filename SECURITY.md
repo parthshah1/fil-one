@@ -35,7 +35,7 @@ The program is administered by Filecoin Foundation and offers bounties for quali
 
 ### Bug bounty eligibility
 
-Fil One currently doesn't operate a bug bounty program. Refer above for Filecoin related bug bounty. 
+FilOne currently doesn't operate a bug bounty program. Refer above for Filecoin related bug bounty. 
 
 ## What to include in a report
 
