@@ -6,11 +6,12 @@ If you discover a security vulnerability in Fil One, please report it responsibl
 
 ### For vulnerabilities in Fil One
 
-Use GitHub's private vulnerability reporting feature, available at https://github.com/fil-one/fil-one/security. 
+Use GitHub's private vulnerability reporting feature, available at https://github.com/fil-one/fil-one/security.
 
 Alternatively, email **security@fil.one**.
 
 This covers:
+
 - Fil One Staging environment. (https://staging.fil.one)
 - Authentication, authorization, and session management
 - Billing and subscription management
@@ -29,13 +30,13 @@ The program is administered by Filecoin Foundation and offers bounties for quali
 
 ### For vulnerabilities in third-party services & dependencies
 
-- **Aurora storage backend** (`https://aurorainfra.ai/`). Is Out of Scope from this program, and should be reported directly at support@aurorainfra.ai 
+- **Aurora storage backend** (`https://aurorainfra.ai/`). Is Out of Scope from this program, and should be reported directly at support@aurorainfra.ai
 - **Auth0** — [Auth0 Responsible Disclosure](https://auth0.com/responsible-disclosure-policy)
 - **Stripe** — [Stripe Security](https://stripe.com/docs/security/reporting)
 
 ### Bug bounty eligibility
 
-FilOne currently doesn't operate a bug bounty program. Refer above for Filecoin related bug bounty. 
+FilOne currently doesn't operate a bug bounty program. Refer above for Filecoin related bug bounty.
 
 ## What to include in a report
 
