@@ -138,7 +138,7 @@ export function ObjectDetailPage({
             ]
           : []),
       ];
-      const { items } = await batchPresign(ops);
+      const { items } = await batchPresign(region, ops);
 
       const headResponse = await executePresignedUrl(items[0].url, items[0].method);
       const head = parseHeadObjectResponse(headResponse, objectKey);
@@ -163,6 +163,7 @@ export function ObjectDetailPage({
 
   const objectActions = useObjectActions({
     bucketName,
+    region,
     onDeleted: () => {
       void navigate({
         to: '/buckets/$bucketName',
@@ -359,6 +360,7 @@ aws s3 cp s3://${bucketName}/${objectKey} ./local-copy \\
         open={shareOpen}
         onClose={() => setShareOpen(false)}
         bucketName={bucketName}
+        region={region}
         objectKey={objectKey}
         versionId={versionId}
       />

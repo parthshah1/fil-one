@@ -39,6 +39,7 @@ export function UploadObjectPage({ bucketName, region }: UploadObjectPageProps) 
 
   const upload = useFileUpload({
     bucketName,
+    region,
     tags,
     onSuccess: () => {
       void navigate({ to: '/buckets/$bucketName', params: { bucketName }, search: { region } });

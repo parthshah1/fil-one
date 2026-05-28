@@ -134,7 +134,9 @@ export function BucketDetailPage({ bucketName, prefix, region }: BucketDetailPag
   } = useQuery({
     queryKey: queryKeys.objects(bucketName),
     queryFn: async (): Promise<ListObjectVersionsResponse> => {
-      const { items } = await batchPresign([{ op: 'listObjectVersions', bucket: bucketName }]);
+      const { items } = await batchPresign(region, [
+        { op: 'listObjectVersions', bucket: bucketName },
+      ]);
       const response = await executePresignedUrl(items[0].url, items[0].method);
       return parseListObjectVersionsResponse(await response.text());
     },
@@ -175,7 +177,11 @@ export function BucketDetailPage({ bucketName, prefix, region }: BucketDetailPag
     [queryClient, bucketName],
   );
 
-  const objectActions = useObjectActions({ bucketName, onDeleted: invalidateObjectsCache });
+  const objectActions = useObjectActions({
+    bucketName,
+    region,
+    onDeleted: invalidateObjectsCache,
+  });
 
   const invalidateAccessKeysCache = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.accessKeys });
