@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
 import { DynamoDBClient, GetItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import { ApiErrorCode } from '@filone/shared';
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -152,6 +153,21 @@ describe('PATCH /api/me/profile handler', () => {
       email_verified: false,
     });
     expect(mockSendVerificationEmail).toHaveBeenCalledWith(MOCK_SUB);
+  });
+
+  it('rejects email change to a disposable domain', async () => {
+    const result = await handler(
+      profileEvent({ email: 'throwaway@mailinator.com' }),
+      buildContext(),
+    );
+
+    expect(result).toMatchObject({
+      statusCode: 400,
+      body: expect.stringContaining(ApiErrorCode.DISPOSABLE_EMAIL_BLOCKED),
+    });
+    // Rejected before any external mutation: no Auth0 update, no claim-flag clear.
+    expect(mockUpdateAuth0User).not.toHaveBeenCalled();
+    expect(ddbMock.commandCalls(UpdateItemCommand)).toHaveLength(0);
   });
 
   it('rejects name change for social login users', async () => {

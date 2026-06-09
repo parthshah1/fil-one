@@ -3,7 +3,9 @@ import middy from '@middy/core';
 import httpHeaderNormalizer from '@middy/http-header-normalizer';
 import type { APIGatewayProxyResultV2 } from 'aws-lambda';
 import type { UpdateProfileResponse, ErrorResponse } from '@filone/shared';
-import { UpdateProfileSchema, isSocialConnection } from '@filone/shared';
+import { UpdateProfileSchema, isSocialConnection, ApiErrorCode } from '@filone/shared';
+import disposableDomainsList from 'disposable-email-domains';
+const DISPOSABLE_DOMAINS = new Set(disposableDomainsList as string[]);
 import { Resource } from 'sst';
 import { getDynamoClient } from '../lib/ddb-client.js';
 import { ResponseBuilder } from '../lib/response-builder.js';
@@ -98,6 +100,18 @@ async function applyEmailUpdate(
       })
       .build();
   }
+
+  const domain = email.split('@')[1]?.toLowerCase();
+  if (domain && DISPOSABLE_DOMAINS.has(domain)) {
+    return new ResponseBuilder()
+      .status(400)
+      .body<ErrorResponse>({
+        message: 'Disposable email addresses are not allowed.',
+        code: ApiErrorCode.DISPOSABLE_EMAIL_BLOCKED,
+      })
+      .build();
+  }
+
   await updateAuth0User(sub, { email, email_verified: false });
   // TODO: sync updated email to Stripe customer profile when we store a separate billing email
   // https://linear.app/filecoin-foundation/issue/FIL-141/sync-stripe-customer-email-after-auth0-email-verification-via-auth0
