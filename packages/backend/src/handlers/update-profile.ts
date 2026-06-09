@@ -98,6 +98,18 @@ async function applyEmailUpdate(
       })
       .build();
   }
+
+  // The new email is unverified (email_verified is reset below), so clear the
+  // claim flag — the normalized form is (re)claimed on the next verified login.
+  // The previous email's entitlement record is append-only and never released.
+  await getDynamoClient().send(
+    new UpdateItemCommand({
+      TableName: Resource.UserInfoTable.name,
+      Key: { pk: { S: `SUB#${sub}` }, sk: { S: 'IDENTITY' } },
+      UpdateExpression: 'REMOVE emailEntitlementClaimed',
+    }),
+  );
+
   await updateAuth0User(sub, { email, email_verified: false });
   // TODO: sync updated email to Stripe customer profile when we store a separate billing email
   // https://linear.app/filecoin-foundation/issue/FIL-141/sync-stripe-customer-email-after-auth0-email-verification-via-auth0
