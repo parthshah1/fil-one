@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
-import { DynamoDBClient, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import {
+  ConditionalCheckFailedException,
+  DynamoDBClient,
+  GetItemCommand,
+  PutItemCommand,
+} from '@aws-sdk/client-dynamodb';
 
 // ---------------------------------------------------------------------------
 // Mocks — baseHandler is tested directly, so no auth/csrf middleware needed.
@@ -72,5 +77,31 @@ describe('create-setup-intent baseHandler', () => {
     expect(item.subscriptionStatus).toBeUndefined();
     expect(item.trialStartedAt).toBeUndefined();
     expect(item.trialEndsAt).toBeUndefined();
+  });
+
+  it('swallows ConditionalCheckFailedException when a record was created concurrently', async () => {
+    // The entitlement path won the race and already wrote the record, so the
+    // conditional PutItem fails. We must not fail the request — keep going and
+    // return the SetupIntent.
+    ddbMock.on(GetItemCommand).resolves({}); // first-time branch
+    ddbMock.on(PutItemCommand).rejects(
+      new ConditionalCheckFailedException({
+        message: 'The conditional request failed',
+        $metadata: {},
+      }),
+    );
+
+    const result = await baseHandler(setupIntentEvent());
+
+    expect(result).toMatchObject({ statusCode: 200 });
+    expect(mockSetupIntentsCreate).toHaveBeenCalledOnce();
+  });
+
+  it('rethrows non-conditional DynamoDB errors', async () => {
+    ddbMock.on(GetItemCommand).resolves({});
+    ddbMock.on(PutItemCommand).rejects(new Error('Service unavailable'));
+
+    await expect(baseHandler(setupIntentEvent())).rejects.toThrow('Service unavailable');
+    expect(mockSetupIntentsCreate).not.toHaveBeenCalled();
   });
 });
